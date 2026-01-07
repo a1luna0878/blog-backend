@@ -18,7 +18,8 @@ import { ArticlesModule } from './articles/articles.module';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
+      url: process.env.DATABASE_URL,
+      autoLoadEntities: true,
       port: 5432,
       username: 'postgres', // Дефолтный юзер
       password: 'root', // Твой пароль из установки (или '' если без)
