@@ -7,13 +7,21 @@ import { AuthModule } from './auth/auth.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ArticlesModule } from './articles/articles.module';
 
+import { User } from './auth/user.entity';
+import { Category } from './categories/category.entity';
+import { Article } from './articles/article.entity';
+
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: process.env.DATABASE_URL,
-      autoLoadEntities: true,
-      synchronize: true, // OK для тестового
+      host: 'localhost',
+      port: 5432,
+      username: 'postgres',
+      password: 'root', // Замени на свой реальный пароль, который ты задал при установке PostgreSQL
+      database: 'blog',
+      entities: [User, Category, Article], // Перечисляем entities явно для надёжности
+      synchronize: true, // OK для dev, в продакшене выключи
     }),
     AuthModule,
     CategoriesModule,
