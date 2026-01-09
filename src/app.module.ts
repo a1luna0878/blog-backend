@@ -18,10 +18,10 @@ import { Article } from './articles/article.entity';
       host: 'localhost',
       port: 5432,
       username: 'postgres',
-      password: 'root', // Замени на свой реальный пароль, который ты задал при установке PostgreSQL
+      password: 'root', 
       database: 'blog',
-      entities: [User, Category, Article], // Перечисляем entities явно для надёжности
-      synchronize: true, // OK для dev, в продакшене выключи
+      entities: [User, Category, Article],
+      synchronize: true,
     }),
     AuthModule,
     CategoriesModule,
