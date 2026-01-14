@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -13,16 +15,23 @@ import { Article } from './articles/article.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-    type: 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432', 10) || 5432,
-  username: process.env.DB_USERNAME || 'postgres',
-  password: process.env.DB_PASSWORD || 'root',
-  database: process.env.DB_NAME || 'blog',
-  entities: [User, Category, Article],
-  synchronize: true,
+    // 🔑 Загружаем env-переменные
+    ConfigModule.forRoot({
+      isGlobal: true,
     }),
+
+    // 🗄️ Подключение к PostgreSQL (Render)
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT),
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      entities: [User, Category, Article],
+      synchronize: true, // ок для pet-проекта
+    }),
+
     AuthModule,
     CategoriesModule,
     ArticlesModule,
