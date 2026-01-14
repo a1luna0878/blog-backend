@@ -12,7 +12,7 @@ import { JwtModule } from '@nestjs/jwt/dist/jwt.module';
     TypeOrmModule.forFeature([User]),
 
     JwtModule.register({
-      secret: 'SECRET_KEY', // потом вынесешь в env, не геройствуй
+      secret: process.env.JWT_SECRET || 'SECRET_KEY', // потом вынесешь в env, не геройствуй
       signOptions: { expiresIn: '1d' },
     }),
   ],
