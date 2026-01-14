@@ -10,12 +10,10 @@ import { JwtModule } from '@nestjs/jwt/dist/jwt.module';
   providers: [AuthService],
   imports: [
     TypeOrmModule.forFeature([User]),
-
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'SECRET_KEY', // потом вынесешь в env, не геройствуй
+      secret: process.env.JWT_SECRET || 'SECRET_KEY', // Единый с strategy
       signOptions: { expiresIn: '1d' },
     }),
   ],
 })
-
 export class AuthModule {}

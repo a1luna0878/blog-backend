@@ -26,8 +26,8 @@ let ArticlesService = class ArticlesService {
         this.categoryRepo = categoryRepo;
     }
     async create(dto) {
-        const categories = await this.categoryRepo.findBy({
-            id: dto.categories,
+        const categories = await this.categoryRepo.find({
+            where: { id: (0, typeorm_2.In)(dto.categories) },
         });
         const article = this.articleRepo.create({
             title: dto.title,
@@ -52,8 +52,8 @@ let ArticlesService = class ArticlesService {
     async update(id, dto) {
         const article = await this.findOne(id);
         if (dto.categories) {
-            article.categories = await this.categoryRepo.findBy({
-                id: dto.categories,
+            article.categories = await this.categoryRepo.find({
+                where: { id: (0, typeorm_2.In)(dto.categories) },
             });
         }
         Object.assign(article, dto);

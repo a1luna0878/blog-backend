@@ -1,7 +1,7 @@
+import { Article } from '../articles/article.entity';
 export declare class Category {
     id: string;
     name: string;
     description: string;
-    createdAt: Date;
-    updatedAt: Date;
+    articles: Article[];
 }

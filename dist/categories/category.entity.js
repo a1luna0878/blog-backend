@@ -11,12 +11,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Category = void 0;
 const typeorm_1 = require("typeorm");
+const article_entity_1 = require("../articles/article.entity");
 let Category = class Category {
     id;
     name;
     description;
-    createdAt;
-    updatedAt;
+    articles;
 };
 exports.Category = Category;
 __decorate([
@@ -24,7 +24,7 @@ __decorate([
     __metadata("design:type", String)
 ], Category.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ unique: true }),
+    (0, typeorm_1.Column)(),
     __metadata("design:type", String)
 ], Category.prototype, "name", void 0);
 __decorate([
@@ -32,13 +32,9 @@ __decorate([
     __metadata("design:type", String)
 ], Category.prototype, "description", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)(),
-    __metadata("design:type", Date)
-], Category.prototype, "createdAt", void 0);
-__decorate([
-    (0, typeorm_1.UpdateDateColumn)(),
-    __metadata("design:type", Date)
-], Category.prototype, "updatedAt", void 0);
+    (0, typeorm_1.ManyToMany)(() => article_entity_1.Article, (article) => article.categories),
+    __metadata("design:type", Array)
+], Category.prototype, "articles", void 0);
 exports.Category = Category = __decorate([
     (0, typeorm_1.Entity)()
 ], Category);
