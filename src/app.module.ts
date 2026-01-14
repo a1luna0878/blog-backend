@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -15,21 +15,52 @@ import { Article } from './articles/article.entity';
 
 @Module({
   imports: [
-    // 🔑 Загружаем env-переменные
+    // 🔑 Загружаем .env / переменные окружения (Render их видит автоматически)
     ConfigModule.forRoot({
       isGlobal: true,
     }),
 
-    // 🗄️ Подключение к PostgreSQL (Render)
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT),
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      entities: [User, Category, Article],
-      synchronize: true, // ок для pet-проекта
+    // 🗄️ Подключение к PostgreSQL на Render через DATABASE_URL
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const databaseUrl = configService.get<string>('DATABASE_URL');
+
+        if (!databaseUrl) {
+          throw new Error(
+            'DATABASE_URL не найден! ' +
+              'Зайди в Render → твой сервис → Environment → добавь DATABASE_URL ' +
+              '(скопируй Internal Database URL из страницы PostgreSQL базы)',
+          );
+        }
+
+        const url = new URL(databaseUrl);
+
+        return {
+          type: 'postgres' as const,
+
+          // Разбираем URL на части (самый надёжный способ)
+          host: url.hostname,
+          port: Number(url.port) || 5432,
+          username: url.username,
+          password: url.password,
+          database: url.pathname.replace(/^\//, ''), // убираем / в начале
+
+          entities: [User, Category, Article],
+
+          // Важно для Render! Без этого часто падает с ошибкой SSL или сертификата
+          ssl: {
+            rejectUnauthorized: false, // отключаем строгую проверку самоподписанного сертификата Render
+          },
+
+          // Настройки, которые были у тебя
+          synchronize: true, // ок для pet-проекта / разработки, В ПРОДАКШЕНЕ → false + миграции!
+
+          // Полезно для отладки (можно потом убрать или сделать условным)
+          logging: process.env.NODE_ENV !== 'production' ? 'all' : false,
+        };
+      },
     }),
 
     AuthModule,
