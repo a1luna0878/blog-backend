@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm'; // Добавлен In
+import { Repository, In } from 'typeorm';
 import { Article } from './article.entity';
 import { Category } from '../categories/category.entity';
 import { CreateArticleDto } from './dto/create-article.dto';
@@ -15,15 +15,26 @@ export class ArticlesService {
   ) {}
 
   async create(dto: CreateArticleDto): Promise<Article> {
-    const categories = await this.categoryRepo.find({
-      where: { id: In(dto.categories) }, // Фикс: In для массива ID
-    });
+    let categories: Category[] = [];
+
+    if (dto.categories && dto.categories.length > 0) {
+      const categoryIds = dto.categories.map(c => c.id); // если используешь объекты
+      // или просто: const categoryIds = dto.categories;   если массив строк
+
+      categories = await this.categoryRepo.findBy({ id: In(categoryIds) });
+
+      if (categories.length !== categoryIds.length) {
+        throw new BadRequestException('Одна или несколько категорий не найдены');
+      }
+    }
+
     const article = this.articleRepo.create({
       title: dto.title,
-      content: dto.content,
+      content: dto.content || [],          // ← защита от undefined/null
       categories,
       published: dto.published ?? false,
     });
+
     return this.articleRepo.save(article);
   }
 
@@ -42,16 +53,27 @@ export class ArticlesService {
 
   async update(id: string, dto: CreateArticleDto): Promise<Article> {
     const article = await this.findOne(id);
-    if (dto.categories) {
-      article.categories = await this.categoryRepo.find({
-        where: { id: In(dto.categories) }, // Фикс: In для массива ID
-      });
+
+    if (dto.categories !== undefined) {
+      if (dto.categories && dto.categories.length > 0) {
+        const categoryIds = dto.categories.map(c => c.id);
+        article.categories = await this.categoryRepo.findBy({ id: In(categoryIds) });
+      } else {
+        article.categories = [];
+      }
     }
-    Object.assign(article, dto);
+
+    if (dto.title) article.title = dto.title;
+    if (dto.content !== undefined) article.content = dto.content || [];
+    if (dto.published !== undefined) article.published = dto.published;
+
     return this.articleRepo.save(article);
   }
 
   async delete(id: string): Promise<void> {
-    await this.articleRepo.delete(id);
+    const result = await this.articleRepo.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException('Article not found');
+    }
   }
 }
