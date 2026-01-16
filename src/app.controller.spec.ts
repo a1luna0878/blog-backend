@@ -15,7 +15,7 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Blog Backend is running!"', () => { // Фикс: актуальный текст
+    it('should return "Blog Backend is running!"', () => {
       expect(appController.getHello()).toBe('Blog Backend is running!');
     });
   });

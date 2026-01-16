@@ -11,13 +11,10 @@ export class Article {
 
   @ManyToMany(() => Category)
   @JoinTable()
-  categories: Category[]; // Many-to-many связь
+  categories: Category[];
 
   @Column('jsonb')
-  content: {
-    type: 'text' | 'header' | 'image' | 'video' | 'list-ordered' | 'list-unordered';
-    content: string | { text: string; level?: number } | { url: string; alt?: string } | { items: string[] };
-  }[];
+  content: any[];
 
   @Column({ default: false })
   published: boolean;

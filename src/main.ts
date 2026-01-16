@@ -1,20 +1,19 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';  // Добавь этот импорт
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Настройка Swagger
   const config = new DocumentBuilder()
-    .setTitle('Blog API')  // Название твоего API (можно изменить)
-    .setDescription('API для блога с аутентификацией, категориями и статьями')  // Описание
-    .setVersion('1.0')  // Версия
-    .addBearerAuth()  // Если есть JWT-авторизация (для AuthModule)
+    .setTitle('Blog API')
+    .setDescription('API для блога с аутентификацией, категориями и статьями')
+    .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);  // Docs будут по /api (можно изменить путь)
+  SwaggerModule.setup('api', app, document);
 
   await app.listen(process.env.PORT ?? 3000);
 }

@@ -15,22 +15,18 @@ export class ArticlesService {
   ) {}
 
   async create(dto: CreateArticleDto): Promise<Article> {
-    let categories: Category[] = [];
+    const categoryIds = dto.categories || [];
+    const categories = categoryIds.length
+      ? await this.categoryRepo.findBy({ id: In(categoryIds) })
+      : [];
 
-    if (dto.categories && dto.categories.length > 0) {
-      const categoryIds = dto.categories.map(c => c.id); // если используешь объекты
-      // или просто: const categoryIds = dto.categories;   если массив строк
-
-      categories = await this.categoryRepo.findBy({ id: In(categoryIds) });
-
-      if (categories.length !== categoryIds.length) {
-        throw new BadRequestException('Одна или несколько категорий не найдены');
-      }
+    if (categoryIds.length && categories.length !== categoryIds.length) {
+      throw new BadRequestException('Одна или несколько категорий не найдены');
     }
 
     const article = this.articleRepo.create({
       title: dto.title,
-      content: dto.content || [],          // ← защита от undefined/null
+      content: dto.content || [],
       categories,
       published: dto.published ?? false,
     });
@@ -55,15 +51,13 @@ export class ArticlesService {
     const article = await this.findOne(id);
 
     if (dto.categories !== undefined) {
-      if (dto.categories && dto.categories.length > 0) {
-        const categoryIds = dto.categories.map(c => c.id);
-        article.categories = await this.categoryRepo.findBy({ id: In(categoryIds) });
-      } else {
-        article.categories = [];
-      }
+      const categoryIds = dto.categories || [];
+      article.categories = categoryIds.length
+        ? await this.categoryRepo.findBy({ id: In(categoryIds) })
+        : [];
     }
 
-    if (dto.title) article.title = dto.title;
+    if (dto.title !== undefined) article.title = dto.title;
     if (dto.content !== undefined) article.content = dto.content || [];
     if (dto.published !== undefined) article.published = dto.published;
 

@@ -1,5 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
-import { Article } from '../articles/article.entity';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()
 export class Category {
@@ -9,9 +8,6 @@ export class Category {
   @Column()
   name: string;
 
-  @Column({ nullable: true })
-  description: string;
-
-  @ManyToMany(() => Article, (article) => article.categories)
-  articles: Article[];
-}
+    @Column({ nullable: true })
+    description: string;
+  }

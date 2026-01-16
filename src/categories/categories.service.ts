@@ -20,7 +20,7 @@ export class CategoriesService {
   async findOne(id: string): Promise<Category> {
     const category = await this.repo.findOneBy({ id });
     if (!category) {
-      throw new Error(`Category with id ${id} not found`); // Фикс: backticks для ${id}
+      throw new Error(`Category with id ${id} not found`);
     }
     return category;
   }
